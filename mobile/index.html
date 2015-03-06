@@ -1,0 +1,97 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html>
+<head>
+    <title>Hall book</title>
+    <link rel="stylesheet" href='static/css/jquery-ui-1.10.4.min.css' type="text/css"/>
+    <link rel="stylesheet" href='static/css/style.css' type="text/css"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+	<script src='static/angular.min.js'></script>
+	<script src='static/angular-touch.min.js'></script>
+	<script src='static/_common.js'></script>
+	<script src='static/_caretaker.js'></script>
+    <style type="text/css">
+    #halls{
+    	list-style-type: none;
+    	padding: 0;
+    }
+
+    #halls .name{
+    	font-weight: bold;
+    	display: inline-block;
+    }
+
+    #halls .seats{
+    	font-weight: normal;
+    	display: inline-block;
+    	float: right;
+    	color: #bbb;
+    }
+
+    #halls li{
+    	font-size: 14px;
+    	margin: 5px;
+    	padding: 10px;
+    }
+
+    </style>
+</head>
+	<body ng-app="mainApp">
+		<div ng-controller="adminMobCtrl">
+			<busy show='showBusy'>
+				<div style="text-align:center;">Loading...</div>
+			</busy>
+			<div ng-show="isListView">
+				<ul id="halls">
+					<li class="btn-primary" ng-repeat="h in halls" ng-click="showHallDetails(h)">
+						<div>
+							<div class="name">{[h.name]}</div>
+							<div class="seats">{[h.seat_capacity]}</div>
+						</div>	
+					</li>
+				</ul>
+			</div>
+			<div ng-hide="isListView">
+				<div id="detailsHead">
+					<h5>{[hall.name]} - <span style="font-weight:normal;color:#adf;"> {[month]} {[year]} </span></h5>
+					<a class="btn btn-primary" ng-click="showHome()">
+						<span class="glyphicon glyphicon-home"></span> Home
+					</a>
+				</div>
+				<table id="mobMonthView" style="width:{[ maxgWidth ]}px" ng-show="isSchView" ng-swipe-left="addMonth(1);"  ng-swipe-right="addMonth(-1);">
+					<tr style="background:#fff;height:20px;" class="bld">
+						<td class="week-day-mob" style="background:#ccc;color:#ccc">.</td>
+						<td>
+							<div class="time-slot" style="width:{[ maxgWidth ]}px;background:#ccc;height:20px;"></div>
+							<div ng-repeat="t in times" class="time-text" style="margin-left:{[ t.tleft ]}px;">{[ t.text ]}{[ t.ampm ]}</div>
+						</td>
+					</tr>
+					<tr ng-repeat="d in days" ng-click="d.details=!d.details;">
+						<td class="week-day-mob {[ d.class ]} mob">{[ d.dayOnly ]}</td>
+						<td>
+							<div class="time-slot" style="width:{[ maxgWidth ]}px;background:#e5e5e5;"></div>
+				            <div ng-repeat="s in d" class="time-slot" style="width:{[ s.span ]}px;margin-left:{[ s.startpx ]}px;"></div>
+				            <div ng-repeat="t in times" class="slot-mark" style="margin-left:{[ t.left ]}px;"></div>
+			            	<div ng-show="d.details" class="mob-day-details">
+			            		<ul>
+			            			<li class="bld">{[d.date]}</li>
+			            			<li ng-repeat="s in d">{[ s.start ]} - {[ s.end ]}</li>
+			            		</ul>
+		            		</div>
+			            <td>
+					</tr>
+				</table>
+				<ul ng-hide="isSchView" class="mob-list">
+					<li>{[hall.seat_capacity]} seats</li>
+					<li ng-repeat="a in hall.amenities">{[a.name]}</li>
+				</ul>
+				<div class="mob-footer">
+					<ul>
+						<li class="btn {[schClass]}" ng-click="setView(true)"><span class="glyphicon glyphicon-calendar"></span> Schedule</li>
+						<li class="btn ft-r {[detClass]}" ng-click="setView(false)"><span class="glyphicon glyphicon-list"></span> Details</li>
+					</ul>
+				</div>
+			</div>
+		</div>
+	</body>
+</html>

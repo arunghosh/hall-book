@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+{% block title %}Search Halls{% endblock %}
+{% block content %}
+<div ng-controller="filterController">
+    <form>
+    </form>
+    <div>
+        <form id="filterForm" ng-submit="findHalls()">
+            {% csrf_token %}
+            <section>
+                <h4>Price</h4>
+                  <div type="text" id="amount"> </div>
+                <div id="slider-range"></div>
+            </section> 
+            <section>
+                <h4>Seating capacity</h4>
+                {{ form.seats }}
+            </section>
+            <section>
+                <h4>Amenites</h4>
+                {{ form.amenities }}
+            </section>  
+            <section>
+                <h4>Hall Types</h4>
+                {{ form.hall_types }}
+            </section>  
+        </form>
+        <div ng-show="halls.length == 0" style="display:inline-block;margin:10px;font-weight:bold;font-size:14px;">No results</div>
+        <div id='hallResult' ng-hide="halls.length == 0">
+            <div id="filterTop">
+                <div class="row">
+                    <div class="ele">
+                        <input id="viewMode" type="checkbox" ng-model="checked"> 
+                        <label for="viewMode">Detailed View</label>
+                    </div>
+                    <div class="ele">Sort by 
+                        <a href="" class="sort-ctrl" ng-click="predicate = 'seat_capacity'; reverse=!reverse">Capacity</a>
+                    </div>
+                </div>  
+                <div class="row">
+                    <div class="ele">{[ halls.length ]} matches found</div>
+                    <input class="ele" id="searchName" type="text" ng-model="hName" placeholder="Hall Name">
+                    <div class="ele">
+                        <span class="date-change glyphicon glyphicon-chevron-left" ng-click="dateBtnClick(-1)"></span>
+                        <input type="text" id="edate" ng-change="refreshSlots()" ng-model='edate'/>
+                        <span class="date-change glyphicon glyphicon-chevron-right" ng-click="dateBtnClick(1)"></span>
+                    </div>
+                </div>
+            </div>
+            <table ng-hide="checked" id="consolView">
+                <tr>
+                    <td></td>
+                    <td style="width:490px;padding-bottom:18px;">
+                        <div>
+                                <div ng-repeat="t in times" class="time-text" style="margin-left:{[ t.left ]}px;">{[ t.text ]}</div>
+                        </div>
+                    </td>
+                </tr>
+                <tr ng-repeat="h in halls | orderBy:predicate:reverse | filter:hName" ng-click="h.details=!h.details">
+                    <td class="summary">
+                        <div class="ta-r"><h4>{[ h.name ]}</h4> | <span>{[ h.city ]}</span></div>
+                    </td>    
+                    <td>
+                        <div class="time-slot" style="width:{[ maxgWidth ]}px;background:#eeb;position:absolute;"></div>
+                        <div ng-repeat="s in h.slots" class="time-slot" title="{[ s.start | date:'HH:mm' ]} - {[ s.end | date:'HH:mm' ]}" style="width:{[ s.span ]}px;margin-left:{[ s.startpx ]}px;"></div>
+                        <div ng-repeat="t in times" class="slot-mark" style="margin-left:{[ t.left ]}px;"></div>
+                        <div ng-show="h.details" class="hall-details">
+                            <img src="/media/{[ h.image ]}" ng-hide="!h.details" >
+                            <div class="info">
+                                <span>
+                                    <span ng-repeat="n in getArray(h.rating) track by $index" class="glyphicon glyphicon-star" style="color:#fd0;"></span>
+                                    <span ng-repeat="n in getArray(5 - h.rating) track by $index" class="glyphicon glyphicon-star" style="color:#ddd;"></span>
+                                </span>
+                                <span> {[ h.seat_capacity ]} seats</span>
+                                <ul>
+                                    <li ng-repeat="a in h.amenities">
+                                        {[ a.name ]}
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </td> 
+                </tr>
+            </table>
+            <table ng-show="checked" id="detailView">
+                <tr ng-repeat="h in halls | orderBy:predicate:reverse | filter:hName">
+                    <td>
+                        <img src="/media/{[ h.image ]}">
+                    </td>
+                    <td colspan="5" style="width:520px;">
+                        <h4>{[ h.name ]}</h4>
+                        <div>{[ h.city ]}</div>
+                        <div>Capacity: <em>{[ h.seat_capacity ]}</em></div>
+                        <div>
+                            <span ng-repeat="n in getArray(h.rating) track by $index" class="glyphicon glyphicon-star" style="color:#fd0;"></span>
+                            <span ng-repeat="n in getArray(5 - h.rating) track by $index" class="glyphicon glyphicon-star" style="color:#ddd;"></span>
+                        </div>
+                        <div>
+                            <div  class="time-slot" style="width:{[ maxgWidth ]}px;background:#ddd;position:absolute;"></div>
+                            <div ng-repeat="s in h.slots" class="time-slot" title="{[ s.start | date:'HH:mm' ]} - {[ s.end | date:'HH:mm' ]}" style="width:{[ s.span ]}px;margin-left:{[ s.startpx ]}px;"></div>
+                            <div ng-repeat="t in times" class="time-text" style="margin-left:{[ t.left ]}px;">{[ t.text ]}</div>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src='/static/_common.js'></script>
+<script src='/static/_filter.js'></script>
+{% endblock %}

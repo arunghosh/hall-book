@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block title %}Search Halls{% endblock %}
+{% block content %}
+	<div ng-controller="adminCtrl">
+		<busy show='showBusy'>
+			<div style="text-align:center;">Loading...</div>
+		</busy>
+		<modal-dialog show='bookShow' width='600px' height='500px' title="Book Slot">
+			<form>
+				<h5 class="bld">{[slot.dispDate]}</h5>
+		      	<div class="ctnr"><input type="hidden" ng-model="slot.day" required></div>
+		      	<div class="ctnr">Name: <input type="text" ng-model="slot.name" required></div>
+		      	<div class="ctnr">Email: <input type="email" ng-model="slot.email"></div>
+		      	<div class="ctnr">Phone: <input type="text" ng-model="slot.phone" required></div>
+		      	<div class="ctnr">Start: <input type="text" ng-model="slot.start" required></div>
+		      	<div class="ctnr">End: <input type="text" ng-model="slot.end" required></div>
+	  	  		<div class="error">{[slot.error]}</div>
+		      	<div class="modal-footer">
+			        <!-- <a class="btn btn-default" ng-click="hideModal()">Close</a> -->
+		        	<a class="btn btn-primary" ng-click="bookSlot(slot)">Save changes</a>
+		      	</div>
+	      	</form>
+		</modal-dialog>
+
+		<ul id="hallTab">
+			<li ng-repeat="h in halls" ng-class="{active:h == hall}" ng-click="setHall(h)"><span class="glyphicon glyphicon-home"></span> {[h.name]}</li>
+		</ul>
+
+		<div id="ctCtrls">
+			<span class="glyphicon glyphicon-calendar"></span>
+			<select ng-options="m for m in cal.months" ng-model="cal.month" ng-change="refreshSlots()"></select>
+			<select ng-options="y for y in cal.years" ng-model="cal.year" ng-change="refreshSlots()"></select>
+		</div>
+		<div id="detailList">
+			<ul class="ct-amenities">
+				<li>{[hall.seat_capacity]} seats</li>
+				<li ng-repeat="a in hall.amenities">{[a.name]}</li>
+			</ul>
+		</div>
+		<ul id="monthView" style="width:{[ maxgWidth ]}px">
+			<li style="background:#fff;">
+				<div class="week-day"></div>
+				<div ng-repeat="t in times" class="time-text" style="margin-left:{[ t.left ]}px;">{[ t.text ]}{[ t.ampm ]}</div>
+			</li>
+			<li ng-repeat="d in cal.days" ng-click="showBookForm($index + 1)">
+				<div class="week-day {[ d.class ]}">{[ d.day ]} {[ d.wday ]}</div>
+	            <div ng-repeat="s in d.slots" class="time-slot" title="{[ s.start | date:'HH:mm' ]} - {[ s.end | date:'HH:mm' ]}" style="width:{[ s.span ]}px;margin-left:{[ s.startpx ]}px;"></div>
+	            <div ng-repeat="t in times" class="slot-mark" style="margin-left:{[ t.left ]}px;"></div>
+			</li>
+		</ul>
+	</div>
+{% endblock %}
+{% block scripts %}
+	<script src='/static/_common.js'></script>
+	<script src='/static/_adminbase.js'></script>
+	<script src='/static/_caretaker.js'></script>
+{% endblock %}
